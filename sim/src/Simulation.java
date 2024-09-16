@@ -65,47 +65,75 @@ class Simulation {
             Frame frame = transmittingHost.getCurrentFrame();
             if (destination.receiveFrame(frame, ProtocolType.SLOTTED_ALOHA)) {
                 transmittingHost.frameSuccessfullySent();
+            } else {
+                transmittingHost.transmitting = false;
+                // For Slotted ALOHA, we don't use the backoff mechanism
+                // Instead, the host will try again in a future slot
             }
         } else if (transmittingHosts.size() > 1) {
-            // Collision occurred, hosts will retry in future slots
+            // Collision occurred
             for (Host host : transmittingHosts) {
                 host.transmitting = false;
+                // Again, for Slotted ALOHA, we don't use the backoff mechanism
             }
         }
+
+        destination.resetMediumState();
     }
 
     private void runCSMA_CD() {
-        // Simplified CSMA/CD implementation
+        List<Host> transmittingHosts = new ArrayList<>();
+
         for (Host host : hosts) {
-            if (host.hasFramesToSend() && !host.transmitting) {
-                if (random.nextDouble() < 0.8) { // 80% chance medium is free
+            if (host.hasFramesToSend() && host.canTransmit()) {
+                if (!destination.isMediumBusy()) {
+                    transmittingHosts.add(host);
                     host.transmitting = true;
-                    Frame frame = host.getCurrentFrame();
-                    if (destination.receiveFrame(frame, ProtocolType.CSMA_CD)) {
-                        host.frameSuccessfullySent();
-                    }
                 }
             }
         }
+
+        if (transmittingHosts.size() == 1) {
+            Host transmittingHost = transmittingHosts.get(0);
+            Frame frame = transmittingHost.getCurrentFrame();
+            if (destination.receiveFrame(frame, ProtocolType.CSMA_CD)) {
+                transmittingHost.frameSuccessfullySent();
+            } else {
+                transmittingHost.handleCollision();
+            }
+        } else if (transmittingHosts.size() > 1) {
+            // Collision occurred
+            for (Host host : transmittingHosts) {
+                host.handleCollision();
+            }
+        }
+
+        destination.resetMediumState();
     }
 
     private void runCSMA_CA() {
-        // Simplified CSMA/CA implementation
         for (Host host : hosts) {
-            if (host.hasFramesToSend() && !host.transmitting) {
-                if (random.nextDouble() < 0.8) { // 80% chance medium is free
+            if (host.hasFramesToSend() && host.canTransmit()) {
+                if (!destination.isMediumBusy()) {
                     // Send RTS
-                    if (random.nextDouble() < 0.9) { // 90% chance RTS is successful
-                        // Received CTS
+                    if (destination.sendCTS()) {
                         host.transmitting = true;
                         Frame frame = host.getCurrentFrame();
                         if (destination.receiveFrame(frame, ProtocolType.CSMA_CA)) {
+                            destination.sendACK();
                             host.frameSuccessfullySent();
+                        } else {
+                            host.handleCollision();
                         }
+                    } else {
+                        // CTS not received, treat as collision
+                        host.handleCollision();
                     }
                 }
             }
         }
+
+        destination.resetMediumState();
     }
 
     public int getTotalTimeSlots() {
