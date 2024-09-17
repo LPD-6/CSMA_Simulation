@@ -5,9 +5,9 @@ class Frame {
     int senderID;
     boolean sent;
 
-    public Frame(int senderID) {
+    public Frame(int senderID, int minSize, int maxSize) {
         this.senderID = senderID;
-        this.size = new Random().nextInt(9) + 8; // Random size between 8 and 16
+        this.size = new Random().nextInt(maxSize - minSize + 1) + minSize;
         this.sent = false;
     }
 }

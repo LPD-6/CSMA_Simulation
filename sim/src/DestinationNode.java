@@ -1,6 +1,6 @@
 import java.util.Random;
 
-public class DestinationNode {
+class DestinationNode {
     private boolean mediumBusy;
     private boolean collision;
     private Random random;
@@ -38,7 +38,7 @@ public class DestinationNode {
             return false;
         }
         mediumBusy = true;
-        boolean success = random.nextDouble() < 0.95; // 95% chance of successful transmission
+        boolean success = random.nextDouble() < 0.95;
         mediumBusy = false;
         return success;
     }
@@ -50,13 +50,13 @@ public class DestinationNode {
         }
         mediumBusy = true;
         for (int i = 0; i < frame.size; i++) {
-            if (random.nextDouble() < 0.05) { // 5% chance of collision during transmission
+            if (random.nextDouble() < 0.05) {
                 collision = true;
                 mediumBusy = false;
                 return false;
             }
         }
-        boolean success = random.nextDouble() < 0.99; // 99% chance of successful transmission
+        boolean success = random.nextDouble() < 0.99;
         mediumBusy = false;
         collision = false;
         return success;
@@ -64,30 +64,28 @@ public class DestinationNode {
 
     private boolean receiveCSMA_CA(Frame frame) {
         if (mediumBusy) {
-            return false; // No collision detection, just fails to receive
+            return false;
         }
         mediumBusy = true;
-        boolean success = random.nextDouble() < 0.98; // 98% chance of successful transmission
+        boolean success = random.nextDouble() < 0.98;
         mediumBusy = false;
         return success;
     }
 
     public void sendACK() {
-        // Simulate sending an ACK
         try {
-            Thread.sleep(2); // ACK takes 2 time slots
+            Thread.sleep(2);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
     public boolean sendCTS() {
-        // Simulate sending CTS for CSMA/CA
         if (mediumBusy) {
             return false;
         }
         try {
-            Thread.sleep(2); // CTS takes 2 time slots
+            Thread.sleep(2);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

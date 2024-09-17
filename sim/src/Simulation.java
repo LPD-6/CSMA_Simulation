@@ -7,11 +7,13 @@ class Simulation {
     int currentTimeSlot;
     int totalTimeSlots;
     Random random;
+    int minFrameSize;
+    int maxFrameSize;
 
-    public Simulation(int numHosts, ProtocolType protocol) {
+    public Simulation(int numHosts, ProtocolType protocol, int minFrameSize, int maxFrameSize) {
         this.hosts = new ArrayList<>();
         for (int i = 0; i < numHosts; i++) {
-            Host host = new Host(i);
+            Host host = new Host(i, minFrameSize, maxFrameSize);
             host.generateFrames(1000);
             hosts.add(host);
         }
@@ -20,6 +22,8 @@ class Simulation {
         this.currentTimeSlot = 0;
         this.totalTimeSlots = 0;
         this.random = new Random();
+        this.minFrameSize = minFrameSize;
+        this.maxFrameSize = maxFrameSize;
     }
 
     public void runSimulation() {
@@ -67,14 +71,10 @@ class Simulation {
                 transmittingHost.frameSuccessfullySent();
             } else {
                 transmittingHost.transmitting = false;
-                // For Slotted ALOHA, we don't use the backoff mechanism
-                // Instead, the host will try again in a future slot
             }
         } else if (transmittingHosts.size() > 1) {
-            // Collision occurred
             for (Host host : transmittingHosts) {
                 host.transmitting = false;
-                // Again, for Slotted ALOHA, we don't use the backoff mechanism
             }
         }
 
@@ -102,7 +102,6 @@ class Simulation {
                 transmittingHost.handleCollision();
             }
         } else if (transmittingHosts.size() > 1) {
-            // Collision occurred
             for (Host host : transmittingHosts) {
                 host.handleCollision();
             }
@@ -115,7 +114,6 @@ class Simulation {
         for (Host host : hosts) {
             if (host.hasFramesToSend() && host.canTransmit()) {
                 if (!destination.isMediumBusy()) {
-                    // Send RTS
                     if (destination.sendCTS()) {
                         host.transmitting = true;
                         Frame frame = host.getCurrentFrame();
@@ -126,7 +124,6 @@ class Simulation {
                             host.handleCollision();
                         }
                     } else {
-                        // CTS not received, treat as collision
                         host.handleCollision();
                     }
                 }

@@ -1,6 +1,4 @@
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Random;
+import java.util.*;
 
 class Host {
     int id;
@@ -9,19 +7,23 @@ class Host {
     int collisionCount;
     int backoffTime;
     Random random;
+    int minFrameSize;
+    int maxFrameSize;
 
-    public Host(int id) {
+    public Host(int id, int minFrameSize, int maxFrameSize) {
         this.id = id;
         this.frames = new LinkedList<>();
         this.transmitting = false;
         this.collisionCount = 0;
         this.backoffTime = 0;
         this.random = new Random();
+        this.minFrameSize = minFrameSize;
+        this.maxFrameSize = maxFrameSize;
     }
 
     public void generateFrames(int count) {
         for (int i = 0; i < count; i++) {
-            frames.add(new Frame(id));
+            frames.add(new Frame(id, minFrameSize, maxFrameSize));
         }
     }
 
@@ -43,7 +45,6 @@ class Host {
     public void handleCollision() {
         collisionCount++;
         if (collisionCount > 16) {
-            // Too many collisions, discard the frame
             frames.poll();
             collisionCount = 0;
         } else {
@@ -53,7 +54,7 @@ class Host {
     }
 
     private void calculateBackoff() {
-        int maxBackoff = Math.min(10, collisionCount); // Cap at 2^10
+        int maxBackoff = Math.min(10, collisionCount);
         backoffTime = random.nextInt((1 << maxBackoff)) + 1;
     }
 
