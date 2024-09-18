@@ -12,7 +12,7 @@ class Simulation {
     private Random random;
     private int minFrameSize;
     private int maxFrameSize;
-    private static final double TRANSMISSION_PROBABILITY = 0.3;
+    private static final double TRANSMISSION_PROBABILITY = 0.5;
     private static final int ACK_SIZE = 1; // Size of ACK in time slots
 
     /**
