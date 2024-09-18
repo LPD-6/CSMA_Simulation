@@ -1,11 +1,4 @@
 /**
- * Enum representing the different types of network protocols that can be simulated.
- */
-enum ProtocolType {
-    SLOTTED_ALOHA, CSMA_CD, CSMA_CA
-}
-
-/**
  * Main class for running network protocol simulations.
  */
 public class NetworkSimulation2 {
