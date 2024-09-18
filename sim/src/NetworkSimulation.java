@@ -8,7 +8,7 @@ enum ProtocolType {
 }
 
 /**
- * Main class for running network protocol simulations.
+ * Main class for running network protocol simulations for the second question.
  */
 public class NetworkSimulation {
     public static void main(String[] args) {
